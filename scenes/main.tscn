@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3 uid="uid://c34jr25mq3idy"]
+
+[ext_resource type="PackedScene" uid="uid://b5gaohtf8iefk" path="res://scenes/environment/ground.tscn" id="1_lbe3k"]
+[ext_resource type="PackedScene" uid="uid://dp6q245eoab1n" path="res://scenes/player/player.tscn" id="2_nbq18"]
+
+[node name="Main" type="Node"]
+
+[node name="Grounds" type="Node2D" parent="."]
+metadata/_edit_lock_ = true
+
+[node name="Ground" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(1234, 1024)
+scale = Vector2(35.56, 1)
+
+[node name="Ground2" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(-41.0001, 689)
+scale = Vector2(3.969, 1.0815)
+
+[node name="Ground3" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(797, 181)
+scale = Vector2(3.969, 1.0815)
+
+[node name="Ground4" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(1860, 639)
+scale = Vector2(3.969, 1.0815)
+
+[node name="Player" parent="." instance=ExtResource("2_nbq18")]
+position = Vector2(588, 706)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+zoom = Vector2(0.5, 0.5)
