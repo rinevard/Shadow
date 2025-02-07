@@ -12,6 +12,22 @@ metadata/_edit_lock_ = true
 position = Vector2(1234, 1024)
 scale = Vector2(35.56, 1)
 
+[node name="Ground5" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(-2978, 889)
+scale = Vector2(35.56, 1)
+
+[node name="Ground6" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(4983, 875)
+scale = Vector2(35.56, 1)
+
+[node name="Ground7" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(4470, 226)
+scale = Vector2(35.56, 1)
+
+[node name="Ground8" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(-1859, -202)
+scale = Vector2(35.56, 1)
+
 [node name="Ground2" parent="Grounds" instance=ExtResource("1_lbe3k")]
 position = Vector2(-41.0001, 689)
 scale = Vector2(3.969, 1.0815)
@@ -22,6 +38,26 @@ scale = Vector2(3.969, 1.0815)
 
 [node name="Ground4" parent="Grounds" instance=ExtResource("1_lbe3k")]
 position = Vector2(1860, 639)
+scale = Vector2(3.969, 1.0815)
+
+[node name="Ground9" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(1860, -38)
+scale = Vector2(3.969, 1.0815)
+
+[node name="Ground10" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(1860, -765)
+scale = Vector2(3.969, 1.0815)
+
+[node name="Ground11" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(1853, -1635)
+scale = Vector2(3.969, 1.0815)
+
+[node name="Ground12" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(820, -2070)
+scale = Vector2(3.969, 1.0815)
+
+[node name="Ground13" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(2167, -2697)
 scale = Vector2(3.969, 1.0815)
 
 [node name="Player" parent="." instance=ExtResource("2_nbq18")]

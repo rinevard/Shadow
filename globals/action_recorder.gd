@@ -4,7 +4,7 @@ extends Node
 关于仿行
 大致思路可以是这样的:
 	按下按钮时调用 reset_action_record() 和 start_record_action() 来重置并开始记录
-	每当玩家输入操作, 调用 record_action() 来记录
+	持续调用 record_action() 来记录
 	再次按下仿行时开始复读:
 		首先调用 end_record_action() 来终止记录, 用 get_record_actions 获取记录,
 		然后 for act, time in 记录:
@@ -24,14 +24,15 @@ extends Node
 			在 TODO 做完的瞬间后: []
 				新增的记录重新进入 TODO, 我们也重新开始记录
 """
-## 形如 [[action, time1], [action, time2], ...] 的列表, time 的单位为秒
-## time_k 为从记录开始到第 k 个操作的时间. 
+## 输入的 actions 是形如[[action, time1], [action, time2], ...] 的列表, time 的单位为秒
+## time1 从 0 开始, time_k 对应的 action 表示在 time_k 时按下的动作. 如果那一刻没有按下动作, action 为 -1
 var action_time_queue: Array[Array] = []
 var is_recording_action: bool = false
 var action_record_start_sec: float = -1.0 # 单位为秒
 
 ## 清空记录的操作
 func reset_action_record():
+	action_record_start_sec = Time.get_ticks_msec() / 1000.0
 	action_time_queue = []
 
 ## 开始记录操作
@@ -48,12 +49,12 @@ func end_record_action():
 ## 在记录前应当先调用 start_record_action 来开始记录
 func record_action(action: int):
 	assert(is_recording_action, "尚未开始记录 action!")
-	assert(action in Enum.Actions.values(), "要记录的 action 不在 Enum.Actions 里! action 为 " + str(action))
+	assert(action == -1 or action in Enum.Actions.values(), "要记录的 action 不在 Enum.Actions 里! action 为 " + str(action))
 	var cur_sec: float = Time.get_ticks_msec() / 1000.0
 	action_time_queue.append([action, cur_sec - action_record_start_sec])
-	print("debug: ")
-	print(action_time_queue)
 
 ## 返回截至调用该函数时记录的所有操作
+var time: int = 0
 func get_record_actions() -> Array:
+	time += 1
 	return action_time_queue.duplicate(true)
