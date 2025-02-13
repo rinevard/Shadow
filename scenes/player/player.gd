@@ -109,7 +109,18 @@ var mirror_pressed_time: int = 0:
 			mirror_shadow.global_position = tmp
 
 # 环
-var circle_pressed_time: int = 0
+const CIRCLE_SHADOW = preload("res://scenes/shadows/circle_shadow.tscn")
+var circle_shadow: Node2D
+var circle_pressed_time: int = 0:
+	set(value):
+		circle_pressed_time = value
+		var tmp = global_position
+		global_position = circle_shadow.global_position
+		circle_shadow.global_position = tmp
+
+func _ready():
+	circle_shadow =  CIRCLE_SHADOW.instantiate()
+	add_child(circle_shadow)
 
 func _physics_process(delta):
 	# Add the gravity.
@@ -166,6 +177,10 @@ func _unhandled_input(event):
 		mirror_pressed_time = 0
 	elif event.is_action_pressed("mirror"):
 		mirror_pressed_time += 1
+	
+	# 环
+	if event.is_action_pressed("circle"):
+		circle_pressed_time += 1
 
 func _on_all_actions_completed():
 	assert(is_instance_valid(imitation_shadow) and imitation_shadow != null, "在 imitation_shadow 不合法时调用了 _on_actions_completed!")
