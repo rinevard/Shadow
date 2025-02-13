@@ -60,6 +60,11 @@ scale = Vector2(3.969, 1.0815)
 position = Vector2(2167, -2697)
 scale = Vector2(3.969, 1.0815)
 
+[node name="Ground14" parent="Grounds" instance=ExtResource("1_lbe3k")]
+position = Vector2(4199, -1131)
+rotation = 1.5708
+scale = Vector2(19.9616, 18.509)
+
 [node name="Player" parent="." instance=ExtResource("2_nbq18")]
 position = Vector2(588, 706)
 

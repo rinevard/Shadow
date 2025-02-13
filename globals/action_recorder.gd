@@ -24,8 +24,8 @@ extends Node
 			在 TODO 做完的瞬间后: []
 				新增的记录重新进入 TODO, 我们也重新开始记录
 """
-## 输入的 actions 是形如[[action, time1], [action, time2], ...] 的列表, time 的单位为秒
-## time1 从 0 开始, time_k 对应的 action 表示在 time_k 时按下的动作. 如果那一刻没有按下动作, action 为 -1
+## 输入的 actions 是形如[[[actions], time1], [[actions], time2], ...] 的列表, time 的单位为秒
+## time1 从 0 开始, time_k 对应的 actions 表示在 time_k 时按下的所有动作. 如果那一刻没有按下动作, actions 为空列表
 var action_time_queue: Array[Array] = []
 var is_recording_action: bool = false
 var action_record_start_sec: float = -1.0 # 单位为秒
@@ -47,11 +47,12 @@ func end_record_action():
 
 ## 调用该函数来记录玩家的操作
 ## 在记录前应当先调用 start_record_action 来开始记录
-func record_action(action: int):
+func record_action(actions: Array[int]):
 	assert(is_recording_action, "尚未开始记录 action!")
-	assert(action == -1 or action in Enum.Actions.values(), "要记录的 action 不在 Enum.Actions 里! action 为 " + str(action))
+	for action in actions:
+		assert(action in Enum.Actions.values(), "要记录的 action 不在 Enum.Actions 里! action 为 " + str(action))
 	var cur_sec: float = Time.get_ticks_msec() / 1000.0
-	action_time_queue.append([action, cur_sec - action_record_start_sec])
+	action_time_queue.append([actions, cur_sec - action_record_start_sec])
 
 ## 返回截至调用该函数时记录的所有操作
 var time: int = 0

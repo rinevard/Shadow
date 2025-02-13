@@ -6,14 +6,6 @@ extends CharacterBody2D
 const INK_SHADOW = preload("res://scenes/shadows/ink_shadow.tscn")
 var ink_shadow: Node2D = null
 
-# 循迹相关
-
-# 仿行相关
-const IMITATION_SHADOW = preload("res://scenes/shadows/imitation_shadow.tscn")
-var is_recording_action: bool = false
-var imitation_shadow_born_global_pos: Vector2
-var imitation_shadow: ImitationShadow = null
-
 var ink_pressed_time: int = 0:
 	set(value):
 		ink_pressed_time = value
@@ -29,6 +21,45 @@ var ink_pressed_time: int = 0:
 			var tmp = global_position
 			global_position = ink_shadow.global_position
 			ink_shadow.global_position = tmp
+
+# 循迹相关
+const PATH_SHADOW = preload("res://scenes/shadows/path_shadow.tscn")
+var is_recording_path: bool = false
+var path_shadow_born_global_pos: Vector2
+var path_shadow: PathShadow = null
+var last_global_pos: Vector2
+
+var path_pressed_time: int = 0:
+	set(value):
+		path_pressed_time = value
+		if path_pressed_time == 0:
+			PathRecorder.reset_shift_record()
+			PathRecorder.end_record_shift()
+			is_recording_path = false
+			if path_shadow and is_instance_valid(path_shadow):
+				path_shadow.call_deferred("queue_free")
+		elif path_pressed_time == 1:
+			PathRecorder.start_record_shift()
+			is_recording_path = true
+			path_shadow_born_global_pos = global_position
+			print("开始记录!")
+		elif path_pressed_time == 2:
+			path_shadow = PATH_SHADOW.instantiate()
+			get_tree().root.add_child(path_shadow)
+			path_shadow.global_position = path_shadow_born_global_pos
+			path_shadow.all_shift_completed.connect(_on_all_shifts_completed)
+			_on_all_shifts_completed()
+		else:
+			# 互换位置
+			var tmp = global_position
+			global_position = path_shadow.global_position
+			path_shadow.global_position = tmp
+
+# 仿行相关
+const IMITATION_SHADOW = preload("res://scenes/shadows/imitation_shadow.tscn")
+var is_recording_action: bool = false
+var imitation_shadow_born_global_pos: Vector2
+var imitation_shadow: ImitationShadow = null
 
 var imitation_pressed_time: int = 0:
 	set(value):
@@ -61,18 +92,23 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 	
-	var action: int = -1
-	if Input.is_action_just_pressed("jump"):
-		action = Enum.Actions.JUMP
-	elif Input.is_action_pressed("left"):
-		action = Enum.Actions.LEFT
-	elif Input.is_action_pressed("right"):
-		action = Enum.Actions.RIGHT
+	var actions: Array[int] = []
+	if Input.is_action_pressed("jump"):
+		actions.append(Enum.Actions.JUMP)
+	if Input.is_action_pressed("left"):
+		actions.append(Enum.Actions.LEFT)
+	if Input.is_action_pressed("right"):
+		actions.append(Enum.Actions.RIGHT)
 	
-	player_action_component.handle_action(action)
+	player_action_component.handle_action(actions)
 	
 	if is_recording_action:
-		ActionRecorder.call_deferred("record_action", action)
+		ActionRecorder.call_deferred("record_action", actions)
+	
+	# 循迹
+	if is_recording_path:
+		PathRecorder.call_deferred("record_shift", global_position - last_global_pos)
+	last_global_pos = global_position
 	
 	move_and_slide()
 
@@ -81,13 +117,25 @@ func _unhandled_input(event):
 		imitation_pressed_time = 0
 	elif event.is_action_pressed("simulate-imitation"):
 		imitation_pressed_time += 1
+	
 	if event.is_action_pressed("remove-ink"):
 		ink_pressed_time = 0
 	elif event.is_action_pressed("ink"):
 		ink_pressed_time += 1
+	
+	if event.is_action_pressed("remove-path"):
+		path_pressed_time = 0
+	elif event.is_action_pressed("simulate-path"):
+		path_pressed_time += 1
 
 func _on_all_actions_completed():
 	assert(is_instance_valid(imitation_shadow) and imitation_shadow != null, "在 imitation_shadow 不合法时调用了 _on_actions_completed!")
 	var actions = ActionRecorder.get_record_actions()
 	imitation_shadow.repeat_actions(actions)
 	ActionRecorder.reset_action_record()
+
+func _on_all_shifts_completed():
+	assert(is_instance_valid(path_shadow) and path_shadow != null, "在 path_shadow 不合法时调用了 _on_all_shifts_completed!")
+	var shifts = PathRecorder.get_record_shifts()
+	path_shadow.repeat_shifts(shifts)
+	PathRecorder.reset_shift_record()
