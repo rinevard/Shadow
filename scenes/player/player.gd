@@ -87,6 +87,30 @@ var imitation_pressed_time: int = 0:
 			global_position = imitation_shadow.global_position
 			imitation_shadow.global_position = tmp
 
+# 小镜子
+const MIRROR_SHADOW = preload("res://scenes/shadows/mirror_shadow.tscn")
+var mirror_shadow_born_global_pos_x: float 
+var mirror_shadow: Node2D
+var mirror_pressed_time: int = 0:
+	set(value):
+		mirror_pressed_time = value
+		if mirror_pressed_time == 0: # 移除它以后
+			if mirror_shadow and is_instance_valid(mirror_shadow):
+				mirror_shadow.call_deferred("queue_free")
+		elif mirror_pressed_time == 1: # 召唤时
+			mirror_shadow = MIRROR_SHADOW.instantiate()
+			mirror_shadow.global_position = global_position
+			mirror_shadow_born_global_pos_x = global_position.x
+			get_tree().root.add_child(mirror_shadow)
+		else:
+			# 互换位置
+			var tmp = global_position
+			global_position = mirror_shadow.global_position
+			mirror_shadow.global_position = tmp
+
+# 环
+var circle_pressed_time: int = 0
+
 func _physics_process(delta):
 	# Add the gravity.
 	if not is_on_floor():
@@ -102,6 +126,7 @@ func _physics_process(delta):
 	
 	player_action_component.handle_action(actions)
 	
+	# 仿行
 	if is_recording_action:
 		ActionRecorder.call_deferred("record_action", actions)
 	
@@ -110,23 +135,37 @@ func _physics_process(delta):
 		PathRecorder.call_deferred("record_shift", global_position - last_global_pos)
 	last_global_pos = global_position
 	
+	# 镜
+	if mirror_shadow and is_instance_valid(mirror_shadow):
+		mirror_shadow.global_position.x = 2 * mirror_shadow_born_global_pos_x - global_position.x
+		mirror_shadow.global_position.y = global_position.y
+	
 	move_and_slide()
 
 func _unhandled_input(event):
+	# 仿行
 	if event.is_action_pressed("remove-imitation"):
 		imitation_pressed_time = 0
 	elif event.is_action_pressed("simulate-imitation"):
 		imitation_pressed_time += 1
 	
+	# 墨
 	if event.is_action_pressed("remove-ink"):
 		ink_pressed_time = 0
 	elif event.is_action_pressed("ink"):
 		ink_pressed_time += 1
 	
+	# 循迹
 	if event.is_action_pressed("remove-path"):
 		path_pressed_time = 0
 	elif event.is_action_pressed("simulate-path"):
 		path_pressed_time += 1
+	
+	# 镜
+	if event.is_action_pressed("remove-mirror"):
+		mirror_pressed_time = 0
+	elif event.is_action_pressed("mirror"):
+		mirror_pressed_time += 1
 
 func _on_all_actions_completed():
 	assert(is_instance_valid(imitation_shadow) and imitation_shadow != null, "在 imitation_shadow 不合法时调用了 _on_actions_completed!")
